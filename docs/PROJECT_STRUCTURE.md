@@ -42,6 +42,8 @@ Current pages:
 放数据层代码。
 
 - `akshare_client.py`：所有 AKShare 请求、fallback 和缓存入口。
+- `seed.py`：已提交真实快照 `data/seed/` 的读写，位于兜底链最前面。
+- `universe.py`：精选公司宇宙（code/name/industry），seed 构建范围与同业分组口径。
 - `cache.py`：本地缓存读写。
 - `schema.py`：标准字段名和数据契约。
 - `sample_data.py`：无网络或接口失败时的演示数据。
@@ -104,11 +106,12 @@ Current pages:
 
 ## `data/`
 
-- `data/raw/`：原始公开数据缓存。
-- `data/processed/`：清洗后的中间数据。
-- `data/cache/`：接口缓存。
+- `data/seed/financials/<code>.csv`：**已提交**的标准化公开年报快照（进 Git），让云端无需联网即出真实数据。
+- `data/raw/`：原始公开数据缓存（不进 Git）。
+- `data/processed/`：清洗后的中间数据（不进 Git）。
+- `data/cache/`：接口缓存（不进 Git）。
 
-不要提交大文件、私有数据、付费数据库原始数据。
+不要提交大文件、私有数据、付费数据库原始数据。`data/seed/` 只放公开财报快照。
 
 ## `outputs/`
 

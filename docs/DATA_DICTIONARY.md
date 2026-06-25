@@ -31,7 +31,8 @@ The data layer currently supports two public AKShare paths.
 | `akshare:sina` | `stock_financial_report_sina(..., "资产负债表")` | 资产负债表 fallback | Uses Sina three-statement endpoint |
 | `akshare:sina` | `stock_financial_report_sina(..., "利润表")` | 利润表 fallback | Uses Sina three-statement endpoint |
 | `akshare:sina` | `stock_financial_report_sina(..., "现金流量表")` | 现金流量表 fallback | Uses Sina three-statement endpoint |
-| `cache:normalized` | Local CSV under `data/cache/` | Normalized cache | Used before live calls when present |
+| `seed:normalized` | Committed CSV under `data/seed/financials/<code>.csv` | Version-controlled snapshot | **Highest priority**; real public data shipped with the repo so Cloud needs no live call |
+| `cache:normalized` | Local CSV under `data/cache/` | Normalized cache | Local, ephemeral, git-ignored; used after seed, before live calls |
 | `sample` | `src/data/sample_data.py` | Demo fallback | Must be labeled as non-live sample data |
 
 ## Provider Field Mapping
@@ -67,10 +68,11 @@ The data layer currently supports two public AKShare paths.
 
 ## Data Source Policy
 
-- 第一数据源：AKShare 公开接口，优先东财年度三大表，失败后尝试新浪三大表。
-- 本地标准化缓存：`data/cache/normalized_financials_<symbol>.csv`。
-- 无网络或接口异常时：使用 `src/data/sample_data.py` 演示数据，并在页面提示。
-- 不允许公开 Wind、CSMAR、Choice 等付费数据库原始数据。
+- 兜底顺序：`data/seed/`（已提交真实快照）→ `data/cache/`（本地缓存）→ AKShare 东财年度三大表 → 新浪三大表 → `src/data/sample_data.py` 演示数据。
+- 已提交快照：`data/seed/financials/<code>.csv`，范围由 `src/data/universe.py` 的精选公司宇宙定义，用 `scripts/build_seed_dataset.py` 刷新。
+- 本地标准化缓存：`data/cache/normalized_financials_<symbol>.csv`（不进 Git）。
+- 无网络或接口异常时：使用演示数据，并在页面提示。
+- 不允许公开 Wind、CSMAR、Choice 等付费数据库原始数据；seed 仅存公开财报数据。
 
 ## Known Limitations
 

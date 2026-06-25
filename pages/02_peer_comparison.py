@@ -6,6 +6,7 @@ from src.config import DEFAULT_SYMBOL
 from src.data import fetch_peer_snapshot
 from src.ui.charts import peer_bar_chart
 from src.ui.layout import configure_page, format_percent
+from src.ui.source_status import render_data_source_status
 
 
 @st.cache_data(show_spinner=False)
@@ -21,8 +22,7 @@ def render() -> None:
     result = load_peers(symbol)
     peer_df = result.data
 
-    if result.warning:
-        st.info(result.warning)
+    render_data_source_status(result.source, result.warning)
 
     metric = st.selectbox(
         "比较指标",

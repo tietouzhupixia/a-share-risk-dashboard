@@ -30,29 +30,38 @@ This file is the quick handoff for the next AI entering the project.
 - [x] Streamlit Cloud deployment checklist (`docs/DEPLOYMENT.md`) and README `Deployment` section.
 - [x] Real local screenshots of all four pages embedded in README (`docs/assets/`).
 - [x] **Deployed to Streamlit Community Cloud and live URL recorded in README + `docs/DEPLOYMENT.md`.**
+- [x] **Data Depth & Robustness: committed 28-company seed snapshot (`data/seed/`) at top of the
+  fallback chain; reproducible `scripts/build_seed_dataset.py`; data-quality fixes (string codes,
+  universe names); real seed-backed industry peers on the peer page.** (local; pending commit/push)
 
 ## Immediate Next Task
 
-Portfolio packaging and deployment are done — the app is live at
-https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/ .
+Data Depth & Robustness main line (see `docs/plans/002-data-depth-robustness-plan.md`) is largely
+done locally: a committed 28-company seed snapshot (`data/seed/`) now sits at the top of the
+fallback chain, and the peer-comparison page uses real same-industry peers built from it.
 
-The next meaningful work is product depth (pick one, keep within existing module boundaries):
+The next step is to ship it and verify on Cloud:
 
-> 1. Cloud smoke pass: open the live URL, click all four pages, try `600519` / `002594` /
->    `300750`, and note in `docs/TASK_LOG.md` which data source each hits on Cloud
->    (live vs sample) — this validates the fallback chain in the real hosted environment.
-> 2. Or harden the peer-comparison page (still local demo peers) toward a real
->    industry-classified peer set in the data layer.
-> 3. Or evidence-linked AI summary polish / PDF export (see "Do Not Do Yet" gates below).
+> 1. Commit and push — **must include the new real data and modules**:
+>    `git add data/seed src tests scripts docs README.md && git commit && git push`.
+>    Streamlit Cloud auto-rebuilds.
+> 2. Cloud smoke pass: open the live URL, try several universe symbols
+>    (e.g. `600519` 茅台, `000895` 双汇, `600276` 恒瑞), confirm each shows
+>    `数据来源：已提交的标准化快照` and the peer page shows real industry peers (no demo warning).
+> 3. Note the observed Cloud sources in `docs/TASK_LOG.md`.
 
-Acceptance for any of the above:
+Acceptance:
 
-- Changes stay inside the correct module boundary (see `AGENTS.md`).
-- No metric formulas or risk thresholds changed without updating `docs/RISK_RULES_SPEC.md`.
-- `docs/TASK_LOG.md` is updated.
+- Pushed repo contains `data/seed/financials/*.csv` (28 files) and the new `src/data/{seed,universe,peers}.py`.
+- Cloud serves `seed:normalized` for universe companies and `seed:peers` on the peer page.
+- No metric formulas or risk thresholds changed.
 
-Optional polish (not required): replace the static company-analysis screenshot with a short GIF
-of switching pages, if a recorder is available.
+## After That (optional, within the same main line or beyond)
+
+- Add a reusable `src/data/quality.py` data-quality module (currently coverage is validated via
+  `scripts/verify_company_coverage.py`; the universe is at 0 missing core fields).
+- Expand the universe further, or refresh the seed snapshot periodically.
+- Then consider the other main lines: evidence-linked AI summary, PDF/one-page report.
 
 ### How the screenshots were produced (reproducible)
 

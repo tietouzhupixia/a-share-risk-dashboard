@@ -15,7 +15,9 @@ import pandas as pd
 from src.config import DEFAULT_COMPANIES
 from src.data.cache import read_csv_cache, write_csv_cache
 from src.data.sample_data import load_sample_financials, load_sample_peer_snapshot
+from src.data.peers import build_peer_snapshot
 from src.data.schema import FinancialDataResult, ensure_standard_columns
+from src.data.seed import read_seed_financials
 
 
 @dataclass(frozen=True)
@@ -165,14 +167,19 @@ def normalize_sina_annual_financials(
 def fetch_company_financials(symbol: str, prefer_live: bool = True) -> FinancialDataResult:
     """Fetch annual financial data for one A-share company.
 
-    The fallback order is normalized cache, Eastmoney live, Sina live, then
-    explicitly labeled sample data.
+    The fallback order is committed seed snapshot, normalized cache, Eastmoney
+    live, Sina live, then explicitly labeled sample data. `prefer_live=False`
+    forces the offline labeled sample path (used for tests and demos).
     """
 
     symbol_info = normalize_a_share_symbol(symbol)
     cache_name = f"normalized_financials_{symbol_info.code}.csv"
 
     if prefer_live:
+        seeded = read_seed_financials(symbol_info.code)
+        if seeded is not None and not seeded.empty:
+            return FinancialDataResult(data=seeded, source="seed:normalized")
+
         cached = read_csv_cache(cache_name)
         if cached is not None and not cached.empty:
             return FinancialDataResult(data=ensure_standard_columns(cached), source="cache:normalized")
@@ -203,11 +210,44 @@ def fetch_company_financials(symbol: str, prefer_live: bool = True) -> Financial
     )
 
 
+def fetch_live_financials(symbol: str) -> pd.DataFrame:
+    """Live-only normalized fetch (Eastmoney then Sina), bypassing seed/cache/sample.
+
+    Used by the seed-build script to refresh the committed snapshot. Raises
+    RuntimeError if both live providers fail or return empty.
+    """
+
+    symbol_info = normalize_a_share_symbol(symbol)
+    errors: list[str] = []
+    for name, fetcher in (
+        ("eastmoney", _fetch_eastmoney_financials),
+        ("sina", _fetch_sina_financials),
+    ):
+        try:
+            data = fetcher(symbol_info)
+            if not data.empty:
+                return ensure_standard_columns(data)
+            errors.append(f"{name}: empty")
+        except Exception as exc:
+            errors.append(f"{name}: {type(exc).__name__}: {exc}")
+    raise RuntimeError(f"live fetch failed for {symbol}: {'; '.join(errors)}")
+
+
 def fetch_peer_snapshot(symbol: str):
     """Fetch a peer-comparison snapshot.
 
-    TODO: Replace with industry classification plus peer financial metrics.
+    Prefers real same-industry peers built from the committed seed dataset; falls
+    back to the labeled sample peers when the symbol is outside the universe.
     """
+
+    try:
+        code = normalize_a_share_symbol(symbol).code
+    except ValueError:
+        code = symbol.strip()
+
+    snapshot = build_peer_snapshot(code)
+    if snapshot is not None and not snapshot.empty:
+        return FinancialDataResult(data=snapshot, source="seed:peers")
 
     return FinancialDataResult(
         data=load_sample_peer_snapshot(symbol.strip()),

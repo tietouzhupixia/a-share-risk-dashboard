@@ -2,6 +2,22 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 17:10 - Data Source Agent (Data Depth & Robustness, Slice 2-3)
+
+- Goal: 把 seed 宇宙从 4 家拉满到 28 家，修数据质量缺陷，并用 seed + 行业标签做真实同业比较。不改指标公式、风险阈值。
+- Changed: `scripts/build_seed_dataset.py`（+ `tests/test_build_seed_dataset.py`，TDD）跑通整份宇宙；生成 `data/seed/financials/*.csv` 共 28 家；`src/data/akshare_client.py` 加 `fetch_live_financials`，并把 `fetch_peer_snapshot` 接到真实同业；新增 `src/data/peers.py`（+ `tests/test_peer_snapshot.py`，TDD）；`src/data/seed.py` 修复 CSV 回读把 `symbol/company_name` 当字符串、`symbol` 补零（+ 回归测试）；`scripts/build_seed_dataset.py` 用 universe 名称回填 company_name；`src/ui/source_status.py`（+ 测试）加 `seed:normalized`/`seed:peers` 文案；`pages/02_peer_comparison.py` 接 `render_data_source_status`；更新 `README.md` 覆盖表（3→28 家宇宙汇总）+ fallback 顺序、`PAGE_REGISTRY.md`（同业页 Skeleton→MVP）。
+- Verified: 后台批量构建 28/28 ok（1990-2025）。修复后整份宇宙复查：全部命中 `seed:normalized`、0 缺核心字段、名称/代码正确（000895=双汇发展、保留前导零）、13 行业、717 个公司-年行、23 家触发风险信号。`pytest -q` 27→**33 passed**；`compileall app.py pages src scripts tests` EXIT=0。`fetch_peer_snapshot("600519")` 现返回 `seed:peers`、5 家食品饮料真实同业。
+- Decisions: 跳过单独的 quality.py 模块（`verify_company_coverage` 已覆盖缺字段校验，整份宇宙 0 缺失），列为可选后续。company_name 以 universe 为准（live 尤其 sina 常缺名）。seed CSV 读回强制 symbol/company_name 为字符串，避免前导零丢失。
+- Next: 提交并推送（**务必 `git add data/seed/` + 新增 src/tests/scripts 文件**），云端验证整份宇宙命中 seed、同业页为真实数据。之后可选：数据质量模块 quality.py、扩展宇宙、或转 PDF/AI 摘要主线。
+
+## 2026-06-25 16:40 - Data Source Agent (Data Depth & Robustness, Slice 1)
+
+- Goal: 启动"数据厚度与稳健"主线。用 Planning + Spec/TDD 流程引入已提交的 seed 快照层，让云端无需联网即出真实数据。不改财务指标公式、风险阈值，不重构 UI。
+- Changed: 新增 `docs/plans/002-data-depth-robustness-plan.md`（路线图，3 阶段 8 任务）；新增 `src/data/universe.py`（28 家非金融大盘股宇宙）、`src/data/seed.py`（seed 读写）、`tests/test_universe.py`、`tests/test_seed_fallback.py`；`src/config.py` 加 `SEED_DIR`；`src/data/akshare_client.py` 兜底链最前面加 seed 分支（`source="seed:normalized"`，仅在 `prefer_live=True` 时）；`src/ui/source_status.py` + `tests/test_source_status.py` 增加 seed 文案；生成 `data/seed/financials/{600519,002594,300750,000333}.csv` 真实快照；更新 `DECISIONS.md`、`DATA_DICTIONARY.md`、`PROJECT_STRUCTURE.md`。
+- Verified: TDD RED→GREEN 两轮（universe、seed）。`pytest -q` 12→**24 passed**；`compileall app.py pages src scripts tests` EXIT=0。端到端：`fetch_company_financials("600519")` 现命中 `seed:normalized`（28 行）；`prefer_live=False` 仍走 sample（既有契约不破）。本环境 AKShare 可用（600519/000333 live 实测成功），为后续批量构建铺路。
+- Decisions: seed 是版本化真实快照，进 Git；cache 仍为本地易变缓存，不进 Git（.gitignore 未忽略 data/seed，默认跟踪）。宇宙排除银行/保险/券商（schema 不同）。seed 优先级高于 cache/live，但 `prefer_live=False` 强制 sample。
+- Next: Slice 2 — 写 `scripts/build_seed_dataset.py`（TDD，fixture 不依赖网络）并跑实数据把宇宙从 4 家填到 ~28 家（联网，约 10+ 分钟，建议后台跑）。这是主线核心数据工程交付物。
+
 ## 2026-06-25 16:00 - Shipping & Launch / Documentation Agent
 
 - Goal: 用户已把仓库 push 到 GitHub 并在 Streamlit Community Cloud 部署成功，拿到公开 URL；把上线信息写回交接文档。不改任何指标公式、风险阈值、UI 或功能。

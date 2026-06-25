@@ -103,34 +103,43 @@ pytest
 
 当前数据源 fallback 顺序：
 
-1. 本地标准化缓存：`data/cache/normalized_financials_<symbol>.csv`
-2. AKShare 东财年度三大表
-3. AKShare 新浪三大表
-4. 明确标注的本地样例数据
+1. **已提交的真实快照**：`data/seed/financials/<code>.csv`（随仓库进 Git，云端无需联网）
+2. 本地标准化缓存：`data/cache/normalized_financials_<symbol>.csv`（本地易变，不进 Git）
+3. AKShare 东财年度三大表
+4. AKShare 新浪三大表
+5. 明确标注的本地样例数据
 
 禁止公开 Wind、CSMAR、Choice 等付费数据库原始数据。
 
 ## Verified Public Data Coverage
 
-Last checked: 2026-06-25, using AKShare 1.18.64. The source APIs are documented in AKShare's official stock data reference for Sina financial reports and Eastmoney yearly statements: https://akshare.akfamily.xyz/data/stock/stock.html
+Last built: 2026-06-25, using AKShare 1.18.64. A curated universe of **28 non-financial large-cap A-share companies across 13 industries** is shipped as a committed seed snapshot (`data/seed/`), so every company — locally and on Streamlit Cloud — serves real public data without a live round-trip.
 
-Re-run:
+| Metric | Value |
+|---|---|
+| Companies | 28 |
+| Industries | 13（食品饮料、汽车、电力设备、家用电器、医药生物、电子、房地产 等） |
+| Year span | 1990–2025 |
+| Company-year rows | 717 |
+| Companies with missing core fields | 0 |
+| Companies triggering ≥1 risk signal | 23 |
+| Verified data source | `seed:normalized` (28/28) |
+
+The universe is defined in `src/data/universe.py`; banks/insurers/brokers are excluded because their statement schema differs. Build/refresh the whole snapshot with one command:
 
 ```bash
+# Rebuild seed snapshots for the whole universe (live AKShare)
+python -m scripts.build_seed_dataset
+
+# Verify coverage over the seed dataset
 python -m scripts.verify_company_coverage 600519 002594 300750
 ```
 
-| Symbol | Company | Initial verified source | Rows | Years | Missing core fields | Risk signals |
-|---|---|---|---:|---|---|---:|
-| `600519` | 贵州茅台 | `cache:normalized` | 28 | 1998-2025 | none | 0 |
-| `002594` | 比亚迪 | `akshare:sina` | 24 | 2002-2025 | none | 3 |
-| `300750` | 宁德时代 | `akshare:eastmoney:yearly` | 12 | 2014-2025 | none | 3 |
-
 Notes:
 
-- Successful live pulls write normalized CSV files under `data/cache/`, which is ignored by Git. Later local runs may show `cache:normalized` for these symbols.
-- In the initial three-symbol smoke test, `002594` fell through to Sina. A direct retry of the Eastmoney yearly adapter returned complete rows, so this is recorded as upstream latency/transience rather than a field-mapping gap.
-- Live AKShare calls depend on upstream public websites and may be slow or temporarily unavailable. The app keeps labeled cache and sample fallback so the demo remains clickable.
+- The committed seed snapshot is the top of the fallback chain, so the cloud demo no longer depends on flaky live AKShare for these companies.
+- Live AKShare calls (used only to refresh the seed) depend on upstream public websites and may be slow or temporarily unavailable; the build script retries per symbol.
+- Company names are sourced from the universe registry, so Sina-only pulls keep correct Chinese names and six-digit codes keep leading zeros (e.g. `000895`).
 
 ## Risk Rules
 

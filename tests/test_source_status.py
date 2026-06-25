@@ -8,6 +8,20 @@ def test_source_status_text_describes_live_sina_source():
     assert "真实公开财报数据" in text
 
 
+def test_source_status_text_describes_seed_snapshot():
+    text = source_status_text("seed:normalized")
+
+    assert "标准化快照" in text
+    assert "真实公开财报数据" in text
+
+
+def test_source_status_text_describes_seed_peers():
+    text = source_status_text("seed:peers")
+
+    assert "真实行业同业" in text
+    assert "最新年度" in text
+
+
 def test_source_status_text_describes_normalized_cache():
     text = source_status_text("cache:normalized")
 
