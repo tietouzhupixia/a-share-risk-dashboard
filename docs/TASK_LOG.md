@@ -2,6 +2,13 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 19:05 - QA & Deploy Agent (云端 seed 验证通过)
+
+- Goal: Reboot 清缓存后复测线上，确认 seed 数据厚度主线在 Streamlit Cloud 真正生效。
+- Verified: Cloud 日志显示 `[10:36] Uvicorn server started`（Reboot 完整重启、清掉 st.cache_data）。无头浏览器实测线上：公司分析页来源="已提交的标准化快照 data/seed"（seed:normalized）；同业比较页="真实行业同业（基于已提交快照）"，显示真实汽车同业 比亚迪/上汽集团/广汽集团、无演示警告。**数据厚度与稳健主线云端端到端通过。**
+- Decisions: 印证前条诊断——之前线上显示 eastmoney 是 `@st.cache_data` 跨热更新的陈旧缓存，Reboot 后即恢复 seed。
+- Next: 仍待用户 push 本地未提交的"空输入守卫"修复（pages/01-04 + `is_valid_a_share_symbol`），push 后建议再 Reboot 一次。之后本主线可收尾，转下一条主线（AI 摘要/PDF 报告 或 扩充宇宙/quality.py）。
+
 ## 2026-06-25 18:30 - QA & Deploy Agent (Cloud log 诊断 + 空输入修复)
 
 - Goal: 解读用户贴的 Streamlit Cloud 构建日志，定位真实问题；修复发现的崩溃缺陷。
