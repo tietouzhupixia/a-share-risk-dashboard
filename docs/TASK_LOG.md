@@ -2,6 +2,14 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 19:30 - Documentation Agent (交接前文档对齐)
+
+- Goal: 为交接给下一位（同样用 AI）的开发者，确认仓库文档一读即懂现状与下一步，消除陈旧内容。
+- Changed: 重写 `docs/NEXT_STEPS.md`——Current Status 改为"已部署+28 家 seed 已云端验证+空输入守卫+34 测试"，删除"three-symbol/local cache/pending push"等陈旧描述与重复的 After That 段；Immediate Next Task 改为"项目在干净检查点，三选一新主线（推荐 AI 摘要/PDF）"；新增 Operational notes（Reboot 清 st.cache_data、截图用 Playwright+本地 Chrome、本地与云端版本一致）；修正 Commands。新增本日志条目。
+- Verified: `git status` 干净，全部已提交并推送（含空输入修复 commit）。`pytest -q` 34 passed；compileall EXIT=0；`data/seed/financials` 28 个 CSV；9 个测试文件。
+- Decisions: 交接主文档以 `NEXT_STEPS.md` 为入口，串起 AGENTS/PROJECT_STRUCTURE/PAGE_REGISTRY/TASK_LOG。下一步方向留给新负责人选，但给出推荐与边界。
+- Next: 用户需把本次文档更新 `git add docs && git commit && git push`，否则下一位 clone 仓库拿到的仍是旧文档。
+
 ## 2026-06-25 19:05 - QA & Deploy Agent (云端 seed 验证通过)
 
 - Goal: Reboot 清缓存后复测线上，确认 seed 数据厚度主线在 Streamlit Cloud 真正生效。
