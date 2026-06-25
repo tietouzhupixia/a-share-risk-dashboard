@@ -12,6 +12,7 @@ This file is the quick handoff for the next AI entering the project.
 - If live sources fail, the app falls back to labeled sample data instead of crashing.
 - Unit tests cover symbol normalization, Eastmoney fixture mapping, Sina fixture mapping, fallback, and page-facing source-status text.
 - README now has a `界面预览 (Screenshots)` section with real local screenshots of all four pages under `docs/assets/`, plus a `Deployment` section and `docs/DEPLOYMENT.md` checklist.
+- **The app is live on Streamlit Community Cloud: https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/** (repo: https://github.com/tietouzhupixia/a-share-risk-dashboard).
 
 ## Completed Slices
 
@@ -28,21 +29,26 @@ This file is the quick handoff for the next AI entering the project.
 - [x] Three-symbol public-data coverage verification and README caveats.
 - [x] Streamlit Cloud deployment checklist (`docs/DEPLOYMENT.md`) and README `Deployment` section.
 - [x] Real local screenshots of all four pages embedded in README (`docs/assets/`).
+- [x] **Deployed to Streamlit Community Cloud and live URL recorded in README + `docs/DEPLOYMENT.md`.**
 
 ## Immediate Next Task
 
-Screenshots and the deployment checklist are both done. The remaining portfolio step is to
-actually go live:
+Portfolio packaging and deployment are done — the app is live at
+https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/ .
 
-> Perform the Streamlit Community Cloud deployment by following `docs/DEPLOYMENT.md`
-> (push repo to GitHub → create app on share.streamlit.io → Python 3.10/3.11 → smoke check),
-> then record the resulting public URL in the README and `docs/DEPLOYMENT.md`.
+The next meaningful work is product depth (pick one, keep within existing module boundaries):
 
-Acceptance:
+> 1. Cloud smoke pass: open the live URL, click all four pages, try `600519` / `002594` /
+>    `300750`, and note in `docs/TASK_LOG.md` which data source each hits on Cloud
+>    (live vs sample) — this validates the fallback chain in the real hosted environment.
+> 2. Or harden the peer-comparison page (still local demo peers) toward a real
+>    industry-classified peer set in the data layer.
+> 3. Or evidence-linked AI summary polish / PDF export (see "Do Not Do Yet" gates below).
 
-- A public Streamlit Cloud URL exists and opens all four pages.
-- README links the live URL near the top (next to the screenshots).
-- Deployment follows `docs/DEPLOYMENT.md` without changing metric formulas or risk thresholds.
+Acceptance for any of the above:
+
+- Changes stay inside the correct module boundary (see `AGENTS.md`).
+- No metric formulas or risk thresholds changed without updating `docs/RISK_RULES_SPEC.md`.
 - `docs/TASK_LOG.md` is updated.
 
 Optional polish (not required): replace the static company-analysis screenshot with a short GIF

@@ -2,6 +2,14 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 16:00 - Shipping & Launch / Documentation Agent
+
+- Goal: 用户已把仓库 push 到 GitHub 并在 Streamlit Community Cloud 部署成功，拿到公开 URL；把上线信息写回交接文档。不改任何指标公式、风险阈值、UI 或功能。
+- Changed: `README.md` 顶部新增 Live Demo 链接、`Deployment` 段改为"已部署"并附 URL；`docs/DEPLOYMENT.md` 新增"当前部署状态"段（URL、仓库、冒烟结果）；`docs/NEXT_STEPS.md` 标记部署完成，下一步改为产品深化三选一。仅文档改动。
+- Verified: `curl` 访问 https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/ 返回 HTTP 303（Streamlit 正常重定向到加载页），约 4s，说明线上可达。GitHub 仓库 https://github.com/tietouzhupixia/a-share-risk-dashboard 已存在。部署过程：用户本地 git init/commit/push；首次 push 因 SOCKS5 代理导致 GCM 浏览器登录失败，改用 PAT 手动登录成功；Streamlit Cloud 选 main 分支、入口 app.py 部署成功。
+- Decisions: 公开 URL 同时写进 README 顶部、README Deployment 段、docs/DEPLOYMENT.md 三处，方便招聘方和后续 AI。代理环境下 GitHub HTTPS 登录建议用 Personal Access Token，而非浏览器流。
+- Next: 线上冒烟（点四个页面、试 600519/002594/300750、记录云端各自命中 live/sample），或推进真实行业同业口径，或 PDF/AI 摘要润色（仍受 NEXT_STEPS 的 Do Not Do Yet 约束）。
+
 ## 2026-06-25 15:30 - Shipping & Launch / Documentation Agent
 
 - Goal: 执行 `docs/NEXT_STEPS.md` 的作品集包装下一步——给 README 增加运行截图；不改财务指标公式、风险阈值，不重构 UI，不新增 PDF/LLM/真实同业功能。

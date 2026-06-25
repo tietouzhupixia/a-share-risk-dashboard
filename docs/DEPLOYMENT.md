@@ -5,6 +5,13 @@
 
 本清单只覆盖部署，不改任何财务指标公式、风险规则阈值或 UI 设计。
 
+## 当前部署状态
+
+- **状态**：已上线（2026-06-25）。
+- **公开地址**：https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/
+- **仓库**：https://github.com/tietouzhupixia/a-share-risk-dashboard （分支 `main`，入口 `app.py`）。
+- **冒烟检查**：URL 返回 Streamlit 正常加载（HTTP 303 重定向到 app 加载页）。重新部署只需向 `main` push，Cloud 会自动重建。
+
 ## 0. 部署前提速览
 
 | 项目 | 当前值 | 说明 |

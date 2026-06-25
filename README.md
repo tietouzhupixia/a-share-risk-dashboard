@@ -2,6 +2,10 @@
 
 中文名：AI上市公司经营风险分析台
 
+**🔗 在线体验 (Live Demo)：https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/**
+
+> 部署在 Streamlit Community Cloud，无需安装即可打开。建议先试已验证公司 `600519` / `002594` / `300750`。线上首跑无本地缓存时走 live AKShare，若上游慢/失败会退回带标注的样例数据而不崩溃。
+
 这是一个面向求职作品集的公开可演示项目。用户输入 A 股公司代码后，系统生成财务趋势、同业比较、透明风险预警和一页式摘要，帮助招聘方快速看到作者的金融分析、数据处理、风险识别和 AI 产品化能力。
 
 ## 界面预览 (Screenshots)
@@ -144,7 +148,9 @@ Notes:
 
 ## Deployment (Streamlit Community Cloud)
 
-本项目可以直接部署到 [Streamlit Community Cloud](https://streamlit.io/cloud)，让招聘方点开一个公开 URL 就能体验，无需本地装环境。完整逐项检查清单见 `docs/DEPLOYMENT.md`。
+**已部署，在线地址：https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/**
+
+本项目已部署到 [Streamlit Community Cloud](https://streamlit.io/cloud)，招聘方点开上面的公开 URL 就能体验，无需本地装环境。完整逐项检查清单见 `docs/DEPLOYMENT.md`。
 
 关键事实：
 
