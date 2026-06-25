@@ -2,6 +2,14 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 18:30 - QA & Deploy Agent (Cloud log 诊断 + 空输入修复)
+
+- Goal: 解读用户贴的 Streamlit Cloud 构建日志，定位真实问题；修复发现的崩溃缺陷。
+- Changed: 新增 `is_valid_a_share_symbol()`（`src/data/akshare_client.py` + 导出 + `tests/test_akshare_client.py`，TDD）；4 个输入页 `pages/01..04` 加非法/空代码守卫（提示而非崩溃）。
+- Verified: `pytest -q` 33→**34 passed**；`compileall` EXIT=0。日志诊断结论：(1) 部署成功，09:36 与 10:25 两次 push 已 "Updated app!"；(2) 满屏 `use_container_width` 仅为 Streamlit 1.58 弃用提示，本地同样出现，非错误；(3) 唯一 Traceback `ValueError: ...got ''` 是清空"A股代码"输入框导致公司页崩溃——已修；(4) 本地与云端依赖版本一致（streamlit 1.58/pandas 3.0.3/numpy 2.5），无漂移。
+- Decisions: 线上公司页仍显示 `akshare:eastmoney:yearly` 而非 `seed:normalized`，根因是 `@st.cache_data` 跨热更新未失效，缓存了旧代码（seed 上线前）算出的结果——数据数值相同，仅来源标签陈旧。解决：在 Manage app 里 Reboot 应用清缓存即可（热更新不清 st.cache_data）。未为此改代码（reboot 即可，避免过度工程）。
+- Next: 用户 (1) push 空输入修复；(2) 在 Streamlit 面板 Reboot 应用清缓存，之后公司页来源应变为"已提交的标准化快照"、同业页为真实汽车同业；(3) 我再复测线上确认并补记日志。
+
 ## 2026-06-25 17:55 - QA & Deploy Agent (Cloud verify + screenshot refresh)
 
 - Goal: 用户已 push；验证 seed 数据厚度主线在 GitHub 与 Streamlit Cloud 上线，并刷新 README 截图。

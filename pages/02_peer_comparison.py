@@ -3,7 +3,7 @@
 import streamlit as st
 
 from src.config import DEFAULT_SYMBOL
-from src.data import fetch_peer_snapshot
+from src.data import fetch_peer_snapshot, is_valid_a_share_symbol
 from src.ui.charts import peer_bar_chart
 from src.ui.layout import configure_page, format_percent
 from src.ui.source_status import render_data_source_status
@@ -19,6 +19,9 @@ def render() -> None:
     st.title("同业比较")
 
     symbol = st.text_input("A股代码", value=DEFAULT_SYMBOL)
+    if not is_valid_a_share_symbol(symbol):
+        st.info("请输入有效的 6 位 A 股代码，例如 600519、002594、300750。")
+        st.stop()
     result = load_peers(symbol)
     peer_df = result.data
 

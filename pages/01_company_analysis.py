@@ -4,7 +4,7 @@ import streamlit as st
 
 from src.ai import build_rule_based_summary
 from src.config import DEFAULT_SYMBOL
-from src.data import fetch_company_financials
+from src.data import fetch_company_financials, is_valid_a_share_symbol
 from src.metrics import add_financial_metrics
 from src.risk import evaluate_risks
 from src.ui.charts import line_chart
@@ -25,6 +25,9 @@ def render() -> None:
     st.title("公司分析")
 
     symbol = st.text_input("A股代码", value=DEFAULT_SYMBOL, help="示例：002594、300750、600519")
+    if not is_valid_a_share_symbol(symbol):
+        st.info("请输入有效的 6 位 A 股代码，例如 600519、002594、300750。")
+        st.stop()
     result, metrics, signals = load_company(symbol)
     render_data_source_status(result.source, result.warning)
 

@@ -67,6 +67,16 @@ def normalize_a_share_symbol(symbol: str) -> AShareSymbol:
     )
 
 
+def is_valid_a_share_symbol(symbol: str) -> bool:
+    """Return True if the input can be parsed as a six-digit A-share code."""
+
+    try:
+        normalize_a_share_symbol(symbol)
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
 def normalize_eastmoney_annual_financials(
     symbol: str,
     balance: pd.DataFrame,

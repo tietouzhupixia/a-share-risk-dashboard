@@ -2,10 +2,21 @@ import pandas as pd
 
 from src.data.akshare_client import (
     fetch_company_financials,
+    is_valid_a_share_symbol,
     normalize_a_share_symbol,
     normalize_eastmoney_annual_financials,
     normalize_sina_annual_financials,
 )
+
+
+def test_is_valid_a_share_symbol():
+    assert is_valid_a_share_symbol("600519")
+    assert is_valid_a_share_symbol("sz002594")
+    assert is_valid_a_share_symbol("SH600519")
+    assert not is_valid_a_share_symbol("")
+    assert not is_valid_a_share_symbol("   ")
+    assert not is_valid_a_share_symbol("ABC")
+    assert not is_valid_a_share_symbol("12345")
 from src.data.schema import STANDARD_FINANCIAL_COLUMNS
 
 
