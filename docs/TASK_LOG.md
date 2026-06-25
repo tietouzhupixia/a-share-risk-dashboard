@@ -2,6 +2,22 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 19:49 - Export Agent
+
+- Goal: 执行 `docs/plans/003-functional-depth-summary-report-plan.md` 的 Task 2，新增一页式 PDF 公司风险报告导出；复用现有 metrics、risk signals、data source label 和 `EvidenceLinkedSummary`，不复制公式、不改风险阈值。
+- Changed: `requirements.txt` 新增 `reportlab`、`pypdf`；`src/export/pdf_exporter.py` 从占位改为 ReportLab PDF 生成器，使用内置 CJK 字体 `STSong-Light` 支持中文；`src/export/__init__.py` 导出 `build_company_pdf_report`；`pages/04_export_center.py` 新增 PDF 下载按钮；新增 `tests/test_pdf_exporter.py`；优化 `src/ai/summary.py` 风险证据字段中文标签；更新 `README.md`、`docs/DEPLOYMENT.md`、`docs/PAGE_REGISTRY.md`、`docs/NEXT_STEPS.md`、`docs/plans/003-functional-depth-summary-report-plan.md`。
+- Verified: TDD RED 阶段先确认 `tests/test_pdf_exporter.py` 因缺少 `build_company_pdf_report` 失败；实现后 PDF 测试通过。最终 `pytest -q` 通过（37 passed），`python -m compileall app.py pages src scripts tests` 通过。生成样例 `outputs/reports/002594_company_risk_report.pdf`，用 PyMuPDF 渲染第一页 PNG 并人工检查：1 页、中文正常、无重叠、无明显截断。Playwright 打开 `http://localhost:8501/export_center`，确认导出页渲染 Excel/PDF 下载控件和 `data/seed` 来源提示。
+- Decisions: PDF 只作为内存 bytes 提供给 `st.download_button`，不依赖 `outputs/`；`PyMuPDF` 仅用于本地视觉验证，不写入 Cloud 运行依赖；PDF 使用当前摘要证据表，未来 LLM/图表增强必须继续保留 `[E#]` 证据链。
+- Next: 可选路线：LLM 润色但必须保留非 LLM fallback 和 `[E#]` 证据引用；或继续做导出增强（PDF 图表图片、Excel 样式）；或清理 Streamlit 1.58 的 `use_container_width` 弃用提示。
+
+## 2026-06-25 19:34 - AI Summary / Documentation Agent
+
+- Goal: 推进 `docs/NEXT_STEPS.md` 推荐的 Functional depth 主线第一步：把公司分析页的规则摘要升级为证据绑定摘要；不接 LLM、不做 PDF、不改财务指标公式或风险阈值。
+- Changed: 新增 `tests/test_ai_summary.py`；更新 `src/ai/summary.py`，新增 `EvidenceLinkedSummary` 与 `build_evidence_linked_summary()`，摘要中的结论以 `[E#]` 引用证据表；更新 `src/ai/__init__.py` 导出新 API；更新 `pages/01_company_analysis.py` 展示摘要证据表；新增 `docs/plans/003-functional-depth-summary-report-plan.md`；更新 `README.md`、`docs/DEPLOYMENT.md`、`docs/PAGE_REGISTRY.md`、`docs/NEXT_STEPS.md`；将已完成的 `docs/plans/002-data-depth-robustness-plan.md` 任务勾选对齐。
+- Verified: TDD RED 阶段先确认 `tests/test_ai_summary.py` 因缺少 `build_evidence_linked_summary` 失败；实现后 `pytest -q tests/test_ai_summary.py` 通过；最终 `pytest -q` 通过（36 passed），`python -m compileall app.py pages src scripts tests` 通过，启动本地 Streamlit 后 `http://localhost:8501` 返回 HTTP 200。
+- Decisions: 证据绑定摘要保持确定性规则生成，不调用外部 LLM；旧 `build_rule_based_summary()` 保留为字符串 fallback，内部复用新摘要对象；证据表用 Streamlit `st.dataframe(..., width="stretch", hide_index=True)` 展示，便于后续 PDF 报告复用同一份 evidence。
+- Next: 执行 `docs/plans/003-functional-depth-summary-report-plan.md` 的 Task 2：一页式 PDF 公司报告。PDF 应复用现有 metrics、risk signals、data source label 和 `EvidenceLinkedSummary`，不要复制公式。
+
 ## 2026-06-25 19:30 - Documentation Agent (交接前文档对齐)
 
 - Goal: 为交接给下一位（同样用 AI）的开发者，确认仓库文档一读即懂现状与下一步，消除陈旧内容。

@@ -4,15 +4,15 @@
 
 **🔗 在线体验 (Live Demo)：https://a-share-risk-dashboard-hmft7s3jyqsew6doqizjpp.streamlit.app/**
 
-> 部署在 Streamlit Community Cloud，无需安装即可打开。建议先试已验证公司 `600519` / `002594` / `300750`。线上首跑无本地缓存时走 live AKShare，若上游慢/失败会退回带标注的样例数据而不崩溃。
+> 部署在 Streamlit Community Cloud，无需安装即可打开。建议先试已验证公司 `600519` / `002594` / `300750`。线上优先使用随仓库提交的真实 seed 快照；seed 未覆盖的代码才会继续尝试 live AKShare，并在上游慢/失败时退回带标注的样例数据而不崩溃。
 
 这是一个面向求职作品集的公开可演示项目。用户输入 A 股公司代码后，系统生成财务趋势、同业比较、透明风险预警和一页式摘要，帮助招聘方快速看到作者的金融分析、数据处理、风险识别和 AI 产品化能力。
 
 ## 界面预览 (Screenshots)
 
-下面是本地运行（默认公司 `002594` 比亚迪，数据来自本地标准化缓存）的真实界面，招聘方在打开应用前即可了解产品形态。
+下面是本地运行（默认公司 `002594` 比亚迪，数据来自已提交真实快照或本地缓存）的真实界面，招聘方在打开应用前即可了解产品形态。
 
-**公司分析页**：核心财务指标卡 + 营收/净利润与现金流趋势图，并标注数据来源。
+**公司分析页**：核心财务指标卡 + 营收/净利润与现金流趋势图 + 证据绑定摘要，并标注数据来源。
 
 ![公司分析页](docs/assets/01_company_analysis.png)
 
@@ -37,7 +37,7 @@
 
 </details>
 
-> 截图为本地真实渲染。线上 Streamlit Cloud 首跑无本地缓存时会改走 live AKShare 或带标注的样例数据，详见下文 Deployment 与 `docs/DEPLOYMENT.md`。
+> 截图为本地真实渲染。线上 Streamlit Cloud 优先读取已提交 seed 快照；seed 未覆盖的代码会改走 live AKShare 或带标注的样例数据，详见下文 Deployment 与 `docs/DEPLOYMENT.md`。
 
 ## Why This Project
 
@@ -49,14 +49,14 @@
 
 ## Current Features
 
-- 公司查询页：核心财务指标、趋势图、规则摘要。
+- 公司查询页：核心财务指标、趋势图、带 `[E#]` 证据编号的规则摘要。
 - 同业比较页：应收账款占比、ROA、杠杆、现金流质量等横向比较。
 - 风险预警页：透明规则、风险等级、触发证据和业务解释。
-- 导出中心：导出财务指标和风险信号 Excel。
+- 导出中心：导出财务指标和风险信号 Excel，并下载一页式公司风险报告 PDF。
 - 数据来源提示：页面明确标注 live AKShare、标准化缓存或样例 fallback。
 - AI 协作规则：`AGENTS.md`、页面登记簿、任务日志和目录边界。
 
-当前版本会优先尝试通过 AKShare 拉取公开财报数据，并在上游失败时退回到明确标注的样例数据。所有数据源逻辑集中在 `src/data/akshare_client.py`。
+当前版本会优先使用已提交的公开财报 seed 快照；seed 未覆盖时再尝试通过 AKShare 拉取公开财报数据，并在上游失败时退回到明确标注的样例数据。所有数据源逻辑集中在 `src/data/akshare_client.py`。
 
 ## Project Structure
 
@@ -88,7 +88,7 @@ streamlit run app.py
 Run checks:
 
 ```bash
-python -m compileall app.py pages src tests
+python -m compileall app.py pages src scripts tests
 pytest
 ```
 
@@ -167,10 +167,11 @@ Notes:
 - **依赖**：根目录 `requirements.txt`，已固定最小可运行依赖，含 `akshare` 等。`pytest` 仅本地测试用，云端运行 app 不依赖它。
 - **Python 版本**：`pyproject.toml` 要求 `>=3.10`；在 Cloud 的 Advanced settings 里选 Python 3.10/3.11。
 - **配置与机密**：`.streamlit/config.toml`（主题、`headless=true`）随仓库提交；`.streamlit/secrets.toml` 不提交（已在 `.gitignore` 排除），当前 MVP 无需任何密钥。
-- **缓存不进 Git**：`data/cache/*` 被 `.gitignore` 排除，所以云端是干净环境，没有本地标准化缓存。
-- **数据 fallback 兜底**：云端首跑因为没有缓存，会按 `live AKShare 东财 → live AKShare 新浪 → 标注的样例数据` 顺序取数。AKShare 依赖上游公开站点，可能比本地慢或偶发失败；此时页面退回带标注的 sample 数据而不是崩溃，demo 始终可点。
+- **已提交 seed 快照**：`data/seed/financials/` 随仓库进入 Git，覆盖 28 家非金融大盘股；云端对这些公司无需 live 网络即可显示真实公开数据。
+- **缓存不进 Git**：`data/cache/*` 被 `.gitignore` 排除，所以云端没有本地易变缓存，但不影响 seed 覆盖公司。
+- **数据 fallback 兜底**：运行期顺序为 `seed 快照 → 本地缓存 → live AKShare 东财 → live AKShare 新浪 → 标注的样例数据`。AKShare 依赖上游公开站点，可能比本地慢或偶发失败；此时页面退回带标注的 sample 数据而不是崩溃，demo 始终可点。
 
-部署后冒烟检查：四个页面均可打开，`600519` 等已验证公司能出图，数据来源提示与实际 live/sample 来源一致，导出中心能下载 Excel。
+部署后冒烟检查：四个页面均可打开，`600519` 等已验证公司能出图，数据来源提示优先显示 `seed:normalized` 或 `seed:peers`，导出中心能下载 Excel。
 
 ## AI Collaboration
 
@@ -185,9 +186,6 @@ Notes:
 
 ## Roadmap
 
-- 接入 AKShare 真实财报字段映射。
-- 增加行业分类和真实同业筛选。
-- 增强 Excel 样式和一页式报告。
-- 增加 PDF 导出。
-- 接入可选 LLM 润色，但保留规则摘要 fallback。
-- 部署到 Streamlit Community Cloud。
+- 增强 Excel 样式和图表图片导出。
+- 接入可选 LLM 润色，但必须保留当前非 LLM 规则摘要 fallback，并且每个结论继续引用证据编号。
+- 扩展数据质量模块或公司宇宙；金融行业需先建立专用报表 schema。

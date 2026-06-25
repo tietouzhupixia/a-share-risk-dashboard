@@ -30,50 +30,50 @@
 
 ### Phase 1: Foundation（seed 管道，先用现有数据落地）
 
-- [ ] **Task 1 — Universe 登记表**（S）
+- [x] **Task 1 — Universe 登记表**（S）
   - `src/data/universe.py`：~28 家非金融大盘股 `(code, name, industry)` + 查询 helper（按 code、按行业）。
   - 验收：宇宙含已有 4 家；无重复 code；每条都有非空 industry；六位代码合法。
   - 测试：`tests/test_universe.py`。
-- [ ] **Task 2 — Seed 读取与兜底链接入**（M）
+- [x] **Task 2 — Seed 读取与兜底链接入**（M）
   - `src/data/seed.py`：`read_seed_financials(code)` 读 `data/seed/financials/<code>.csv`。
   - `fetch_company_financials`：在最前面加 seed 命中分支，`source="seed:normalized"`。
   - 用现有 3 份标准化缓存（600519/002594/300750）+ 4 号公司，先生成对应 seed 文件落地。
   - 验收：seed 存在时优先于 cache/live；seed 缺失时退回原链路不变。
   - 测试：`tests/test_seed_fallback.py`（seed 优先级、缺失回退）。
-- [ ] **Task 3 — 文档与来源标注**（S）
+- [x] **Task 3 — 文档与来源标注**（S）
   - `src/ui/source_status.py` 识别 `seed:normalized` 文案（"已提交的标准化快照"）。
   - 更新 `DECISIONS.md`（seed 架构）、`DATA_DICTIONARY.md`（seed 来源）、`PROJECT_STRUCTURE.md`（data/seed）。
 
 ### Checkpoint: Foundation
-- [ ] `pytest -q` 全绿；`compileall` 通过。
-- [ ] 本地 `fetch_company_financials("600519")` 命中 `seed:normalized`。
-- [ ] 现有 3-4 家公司即使删掉 cache、断网也能出真实数据。
+- [x] `pytest -q` 全绿；`compileall` 通过。
+- [x] 本地 `fetch_company_financials("600519")` 命中 `seed:normalized`。
+- [x] 现有 3-4 家公司即使删掉 cache、断网也能出真实数据。
 
 ### Phase 2: Thickness（拉满整份宇宙）
 
-- [ ] **Task 4 — Seed 构建脚本**（M）
+- [x] **Task 4 — Seed 构建脚本**（M）
   - `scripts/build_seed_dataset.py`：逐只 live 拉取 + 标准化 + 写 seed + 重试 + 覆盖报告（markdown/json）。
   - 测试：用 fixture/mock 验证写入与报告逻辑，不依赖真实网络。
-- [ ] **Task 5 — 跑数据，填满宇宙**（M，需联网）
+- [x] **Task 5 — 跑数据，填满宇宙**（M，需联网）
   - 运行脚本生成 ~28 家 seed CSV 并提交；失败的逐只重试/记录。
   - 验收：≥24 家核心字段无缺失、年份跨度合理。
-- [ ] **Task 6 — 数据质量校验 + 覆盖报告**（S）
+- [x] **Task 6 — 数据质量校验 + 覆盖报告**（S）
   - `src/data/quality.py` + 扩展 `verify_company_coverage` 到整份宇宙；README 覆盖表从 3 → 全宇宙。
 
 ### Checkpoint: Thickness
-- [ ] 整份宇宙覆盖报告可一键生成；README 覆盖表更新。
+- [x] 整份宇宙覆盖报告可一键生成；README 覆盖表更新。
 
 ### Phase 3: Real peers + 云端稳健（主线收益兑现）
 
-- [ ] **Task 7 — 行业分组真实同业**（M）
+- [x] **Task 7 — 行业分组真实同业**（M）
   - `fetch_peer_snapshot` 用 universe 的 industry 标签 + seed 财报 + 现有 metrics 组装真实同业，替换样例。
   - 不改指标公式；同业页来源标注更新。
   - 测试：`tests/test_peer_snapshot.py`。
-- [ ] **Task 8 — 云端稳健验证 + 文档**（S）
+- [x] **Task 8 — 云端稳健验证 + 文档**（S）
   - push 后确认线上各页对整份宇宙命中 `seed:normalized`；更新 `DEPLOYMENT.md`、`NEXT_STEPS.md`。
 
 ### Checkpoint: Complete
-- [ ] 线上 demo 对整份宇宙稳定出真实数据；同业页为真实行业口径。
+- [x] 线上 demo 对整份宇宙稳定出真实数据；同业页为真实行业口径。
 
 ## Risks and Mitigations
 

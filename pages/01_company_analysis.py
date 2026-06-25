@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from src.ai import build_rule_based_summary
+from src.ai import build_evidence_linked_summary
 from src.config import DEFAULT_SYMBOL
 from src.data import fetch_company_financials, is_valid_a_share_symbol
 from src.metrics import add_financial_metrics
@@ -76,7 +76,10 @@ def render() -> None:
     )
 
     st.subheader("AI/规则摘要")
-    st.write(build_rule_based_summary(metrics, signals))
+    summary = build_evidence_linked_summary(metrics, signals)
+    st.write(summary.narrative)
+    st.caption("摘要中的 [E1]、[E2] 等编号可在下方证据表中追溯到具体指标或风险规则。")
+    st.dataframe(summary.evidence, width="stretch", hide_index=True)
 
     st.subheader("年度指标明细")
     display_columns = [

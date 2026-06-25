@@ -26,7 +26,11 @@ What works today:
   `seed:normalized`, peer page shows `seed:peers` (real same-industry peers).
 - **Reproducible data build**: `python -m scripts.build_seed_dataset` refreshes the whole snapshot.
 - **Input validation**: empty/invalid A-share codes show a friendly message instead of crashing.
-- **Tests**: 34 passing across 9 test files (TDD). `compileall` clean.
+- **Evidence-linked summary**: company analysis page now renders a deterministic narrative with `[E#]`
+  citations and a visible evidence table from `src/ai/summary.py`. No LLM call is used.
+- **One-page PDF report**: export center now downloads a PDF company risk report built from existing
+  metrics, risk signals, data-source label, and `EvidenceLinkedSummary`.
+- **Tests**: 37 passing across 11 test files (TDD). `compileall` clean.
 
 ## Completed (high level)
 
@@ -39,21 +43,21 @@ What works today:
   `docs/plans/002-data-depth-robustness-plan.md`: committed 28-company seed snapshot at the top of
   the fallback chain, reproducible build script, real seed-backed industry peers, data-quality fixes
   (string codes keep leading zeros, names backfilled from the universe), input guards.
+- [x] **Functional depth slice 1 (DONE)** — see
+  `docs/plans/003-functional-depth-summary-report-plan.md`: evidence-linked deterministic summary
+  with `[E#]` citations and evidence table on the company analysis page.
+- [x] **Functional depth slice 2 (DONE)** — one-page PDF company risk report in `src/export/`, exposed
+  through the export center.
 
-## Immediate Next Task (pick one — the project is at a clean checkpoint)
+## Immediate Next Task
 
-No work is half-finished. The next owner chooses a main line. Recommended first, then alternatives:
+No work is half-finished. Recommended next options:
 
-1. **(Recommended) Functional depth — evidence-linked AI summary and/or one-page PDF report.**
-   The rule-based summary already exists in `src/ai/`; add an optional LLM polish that stays bound
-   to the same evidence, and/or a PDF/one-page export in `src/export/`. Highest recruiter value
-   ("金融分析 + AI 产品化"). Respect the "Do Not Do Yet" gates below (LLM only after summaries are
-   evidence-linked; keep a non-LLM fallback).
-2. **More data depth.** Add `src/data/quality.py` (reusable data-quality checks; today coverage is
-   validated only via `scripts/verify_company_coverage.py`), expand the universe beyond 28, or add a
-   periodic seed refresh. Keep banks/insurers out until a financial-sector schema is built.
-3. **Front-end / robustness polish.** Migrate `use_container_width=True` → `width="stretch"` to clear
-   the Streamlit 1.58 deprecation warnings seen in Cloud logs (harmless today, slated for removal).
+1. Optional LLM polish that preserves `[E#]` references and keeps deterministic fallback.
+2. Export polish: add chart images to the PDF or improve Excel styling without changing formulas.
+3. More data depth: expand universe or add reusable `src/data/quality.py`.
+4. Front-end robustness: migrate `use_container_width=True` → `width="stretch"` to clear Streamlit
+   1.58 deprecation warnings.
 
 For any choice: stay inside module boundaries (`AGENTS.md`), do not change metric formulas or risk
 thresholds without updating `docs/RISK_RULES_SPEC.md`, add focused tests, and update `docs/TASK_LOG.md`.
@@ -83,7 +87,7 @@ thresholds without updating `docs/RISK_RULES_SPEC.md`, add focused tests, and up
 
 ## Do Not Do Yet
 
-- Do not add LLM API calls before summaries are evidence-linked; always keep a non-LLM fallback.
+- Do not add LLM API calls without preserving `[E#]` evidence references and the non-LLM fallback.
 - Do not change risk-rule formulas/thresholds without updating `docs/RISK_RULES_SPEC.md`.
 - Do not add banks/insurers/brokers to the universe without a dedicated financial-sector schema.
 - Do not commit secrets, paid-database raw data, or large files (see `AGENTS.md`).
