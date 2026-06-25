@@ -2,6 +2,14 @@
 
 每次 AI 工作后必须新增一条记录。最新记录放在最上方。
 
+## 2026-06-25 17:55 - QA & Deploy Agent (Cloud verify + screenshot refresh)
+
+- Goal: 用户已 push；验证 seed 数据厚度主线在 GitHub 与 Streamlit Cloud 上线，并刷新 README 截图。
+- Changed: 重新生成本地 seed 版截图 `docs/assets/01_company_analysis.png`、`02_peer_comparison.png`（待 push）。
+- Verified: GitHub API 确认仓库已含 `data/seed/financials/` 28 个 CSV 与新模块 `seed.py/universe.py/peers.py`。本地应用截图确认：公司页来源="已提交的标准化快照 data/seed"，同业页="真实行业同业（基于已提交快照）"显示真实汽车同业（比亚迪/上汽/广汽）、无演示警告。**但线上 Cloud 仍跑旧版**：push 后约 25-30 分钟，线上公司页来源仍是"AKShare 东财年度三大表"，同业页仍显示"本地演示同业数据"警告 + 样例同业——说明 Cloud 重建尚未上线（akshare 依赖重、可能排队/卡住）。
+- Decisions: 截图改用本地 seed 版（可靠），不等 Cloud；Cloud 重建状态需用户在 share.streamlit.io 的 Manage app 看构建日志，必要时 Reboot。
+- Next: (1) 用户在 Cloud 面板查看构建日志/Reboot，确认新版上线后线上应显示 seed 来源；(2) `git add docs/assets && git commit && git push` 把刷新截图同步；(3) 上线确认后把云端实测来源补记本日志。
+
 ## 2026-06-25 17:10 - Data Source Agent (Data Depth & Robustness, Slice 2-3)
 
 - Goal: 把 seed 宇宙从 4 家拉满到 28 家，修数据质量缺陷，并用 seed + 行业标签做真实同业比较。不改指标公式、风险阈值。
